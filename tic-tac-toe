@@ -1,0 +1,130 @@
+#include <iostream>
+#include <vector>
+#include <cstdlib>
+#include <ctime>
+
+// Represents each cell on the tic-tac-toe board
+enum class Cell { Empty, X, O };
+
+// Represents the Tic Tac Toe board
+class Board {
+private:
+    std::vector<Cell> cells; // The board cells
+
+public:
+    Board() : cells(9, Cell::Empty) {} // Constructor initializes cells with empty values
+
+    // Display the board
+    void display() const {
+        for (int i = 0; i < 9; ++i) {
+            char symbol = ' ';
+            switch (cells[i]) {
+                case Cell::X: symbol = 'X'; break;
+                case Cell::O: symbol = 'O'; break;
+                default: break;
+            }
+            std::cout << symbol;
+            if (i % 3 == 2) std::cout << std::endl;
+            else std::cout << '|';
+        }
+    }
+
+    // Check if the board is full
+    bool isFull() const {
+        for (Cell cell : cells) {
+            if (cell == Cell::Empty) return false;
+        }
+        return true;
+    }
+
+    // Check if the game has been won
+    bool checkWin(Cell player) const {
+        // Check rows
+        for (int i = 0; i < 3; ++i) {
+            if (cells[i] == player && cells[i+3] == player && cells[i+6] == player)
+                return true;
+        }
+        // Check columns
+        for (int i = 0; i < 3; ++i) {
+            if (cells[i*3] == player && cells[i*3+1] == player && cells[i*3+2] == player)
+                return true;
+        }
+        // Check diagonals
+        if (cells[0] == player && cells[4] == player && cells[8] == player)
+            return true;
+        if (cells[2] == player && cells[4] == player && cells[6] == player)
+            return true;
+        return false;
+    }
+
+    // Place a symbol on the board at the specified position
+    void placeMove(int position, Cell player) {
+        cells[position] = player;
+    }
+
+    // Clear the board
+    void clear() {
+        cells.assign(9, Cell::Empty);
+    }
+};
+
+// Represents the game
+class Game {
+private:
+    Board board;
+
+public:
+    // Start the game
+    void start() {
+        std::cout << "Welcome to Tic Tac Toe!\n";
+        std::cout << "Player 1 (X) - Player 2 (O)\n";
+        std::cout << "Enter 1-9 to make your move.\n";
+
+        while (true) {
+            board.display();
+            if (board.isFull()) {
+                std::cout << "It's a draw!\n";
+                break;
+            }
+
+            // Player 1's turn
+            playerMove(Cell::X);
+            board.display();
+            if (board.checkWin(Cell::X)) {
+                std::cout << "Player 1 wins!\n";
+                break;
+            }
+
+            // Player 2's turn
+            playerMove(Cell::O);
+            if (board.checkWin(Cell::O)) {
+                std::cout << "Player 2 wins!\n";
+                break;
+            }
+        }
+    }
+
+private:
+    // Handle a player's move
+    void playerMove(Cell player) {
+        int position;
+        while (true) {
+            std::cout << "Player " << (player == Cell::X ? "1" : "2") << "'s turn: ";
+            std::cin >> position;
+            position--; // Adjust for zero-based indexing
+            if (position < 0 || position > 8 || board.cells[position] != Cell::Empty) {
+                std::cout << "Invalid move. Try again.\n";
+            } else {
+                board.placeMove(position, player);
+                break;
+            }
+        }
+    }
+};
+
+// Entry point of the program
+int main() {
+    Game game;
+    game.start();
+    return 0;
+}
